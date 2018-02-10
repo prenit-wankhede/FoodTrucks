@@ -14,3 +14,47 @@
 //= require rails-ujs
 //= require turbolinks
 //= require_tree .
+
+$.ready(function(){
+
+})
+
+function showLoader() {
+	$(".loader").show()
+} 
+
+function hideLoader() {
+	$(".loader").hide()
+}
+
+function initMap() {
+
+	showLoader();
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setMap);
+    } else {
+        setMap()
+    }
+	
+}
+
+function setMap(location) {
+	var position = {}
+	if(location) {
+		position["lat"] = location.coords.latitude
+		position["lng"] = location.coords.longitude
+	} else {
+		position["lat"] = location.coords.latitude
+		position["lng"] = location.coords.longitude
+	}
+
+	var map = new google.maps.Map(document.getElementById('google-map-div'), {
+	  zoom: 12,
+	  center: position
+	});
+	var marker = new google.maps.Marker({
+	  position: position,
+	  map: map
+	});
+	hideLoader()
+}
