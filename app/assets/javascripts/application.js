@@ -43,7 +43,9 @@ function initMap() {
 	showLoader();
     if (navigator.geolocation) {
     	showMessage("Fetching your current location. Please give permission and wait ...")
-        navigator.geolocation.getCurrentPosition(setMap);
+        navigator.geolocation.getCurrentPosition(setMap, function(err){
+            setMap()
+        });
     } else {
         setMap()
     }
