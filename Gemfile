@@ -55,3 +55,9 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # use jquery library
 gem 'jquery-rails'
+
+# For food truck location database
+gem 'soda-ruby', :require => 'soda'
+
+# for method mocking in tests
+gem 'mocha'

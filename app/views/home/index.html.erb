@@ -1,4 +1,4 @@
-<h1>Hey ! Now find food trucks nearby you using my cool app !</h1>
+<h1>Drag the blue marker on the map to locate nearby food trucks ! Click on markers for more info.</h1>
 
 <%= form_tag "#", onsubmit: "return false;" do %>	
 	<%= text_field_tag "address", "", placeholder: "Type Address", autofocus: "autofocus", style: "width: 80%;" %>
@@ -8,19 +8,27 @@
 
 <br>
 
-<div id="google-map-div">
-	
+<div id="wrapper">
+	<div id="google-map-div">
+		
+	</div>
+
+	<div id="food-truck-div">
+		<ul>
+		  	<li> No Food Trucks around you ! </li>
+		</ul>
+	</div>
 </div>
 
 <br>
 
-<h2> OR enter your geo cordinates</h2> 
+<h2>Or enter your geo cordinates. Try (37.78 , -122.43)</h2> 
 <%= form_tag "#", onsubmit: "return false;" do %>
 	<%= label_tag "Latitude" %>
-	<%= text_field_tag "latitude" %>
+	<%= text_field_tag "latitude", "37.78" %>
 
 	<%= label_tag "Longitude" %>
-	<%= text_field_tag "longitude" %>
+	<%= text_field_tag "longitude", "-122.43" %>
 		
 	<%= button_tag "Find Food Trucks", id: "submit-cordinates-button" %>	
 <% end %>

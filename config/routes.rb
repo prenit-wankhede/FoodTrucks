@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   
   root to: "home#index"
-
+  get "home/index"
+  
   namespace :api do
   	namespace :json do
   	  namespace :one do

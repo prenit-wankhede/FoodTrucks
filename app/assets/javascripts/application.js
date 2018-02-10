@@ -15,9 +15,7 @@
 //= require turbolinks
 //= require_tree .
 
-$.ready(function(){
-
-})
+var markersArray = [];
 
 function showLoader() {
 	$(".loader").show()
@@ -27,10 +25,24 @@ function hideLoader() {
 	$(".loader").hide()
 }
 
+function showMessage(message) {
+	$(".message").html(message)
+	$(".message").show()
+	setTimeout(function(){
+		hideMessage()
+	}, 5000)
+} 
+
+function hideMessage() {
+	$(".message").html("")
+	$(".message").hide()
+}
+
 function initMap() {
 
 	showLoader();
     if (navigator.geolocation) {
+    	showMessage("Fetching your current location. Please give permission and wait ...")
         navigator.geolocation.getCurrentPosition(setMap);
     } else {
         setMap()
@@ -43,9 +55,11 @@ function setMap(location) {
 	if(location) {
 		position["lat"] = location.coords.latitude
 		position["lng"] = location.coords.longitude
+		document.getElementById('latitude').value = location.coords.latitude
+    	document.getElementById('longitude').value = location.coords.longitude
 	} else {
-		position["lat"] = 19.0760
-		position["lng"] = 72.8777
+		position["lat"] = 37.78
+		position["lng"] = -122.43
 	}
 
 	var map = new google.maps.Map(document.getElementById('google-map-div'), {
@@ -87,9 +101,11 @@ function setMap(location) {
     	geocodeCordinates(geocoder, map, marker, infowindow);
     });
 
+    geocodeCordinates(geocoder, map, marker, infowindow);
 }
 
 function geocodeAddress(geocoder, resultsMap, resultMarker, resultInfoWindow) {
+	showLoader()
 	var address = document.getElementById('address').value;
 	geocoder.geocode({'address': address}, function(results, status) {
 		handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
@@ -97,6 +113,7 @@ function geocodeAddress(geocoder, resultsMap, resultMarker, resultInfoWindow) {
 }
 
 function geocodeCordinates(geocoder, resultsMap, resultMarker, resultInfoWindow) {
+	showLoader()
 	var latitude = parseFloat(document.getElementById('latitude').value);
 	var longitude = parseFloat(document.getElementById('longitude').value);
 	var location = {lat: latitude, lng: longitude}
@@ -117,23 +134,74 @@ function handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, resul
     	document.getElementById('latitude').value = results[0].geometry.location.lat()
     	document.getElementById('longitude').value = results[0].geometry.location.lng()
 
+    	showLoader()
+    	showMessage("Fetching nearby Food Trucks. Please Wait ...")
     	$.ajax({
     		method: "GET",
-    		url: "/api/json/one/trucks",
+    		url: "/api/json/one/trucks.json",
     		data: {
     			latitude: results[0].geometry.location.lat(),
-    			longitude: results[0].geometry.location.lng(),
-    			address: results[0].formatted_address
+    			longitude: results[0].geometry.location.lng()
     		},
     		success: function (result, status) {
-    			alert(JSON.stringify(result))
+    			if(result && result.trucks.length) {
+    				$("#food-truck-div").find("ul").html("")
+
+    				var bounds = new google.maps.LatLngBounds();
+
+    				$.each(markersArray, function(index, marker) {
+    					marker.setMap(null)
+    				})
+    				markersArray = []
+
+    				var truckCount = 0
+    				var pushCartCount = 0
+    				$.each(result.trucks, function(index, truck) {
+    					
+    					var position = {lat: parseFloat(truck.latitude), lng: parseFloat(truck.longitude)}
+    					bounds.extend(position);
+    					var icon
+    					if(truck.facilitytype === "Truck") {
+    						$("#food-truck-div").find("ul").append('<li class="Truck">' + truck.applicant + ', '+ truck.address + '<br> Serves: ' + truck.fooditems.substring(0,20) + '</li><br>')
+    						truckCount = truckCount + 1
+    						icon = "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+    					}
+    					if(truck.facilitytype === "Push Cart") {
+    						$("#food-truck-div").find("ul").append('<li class="Push-Cart">' + truck.applicant + ', '+ truck.address + '<br> Serves: ' + truck.fooditems.substring(0,20) + '</li><br>')
+    						pushCartCount = pushCartCount + 1
+    						icon = "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+    					}
+    					var marker = new google.maps.Marker({
+						  position: position,
+						  map: resultsMap,
+						  icon: icon
+						});
+						markersArray.push(marker)
+
+						var infowindow = new google.maps.InfoWindow({
+					      content: truck.applicant + "<br>" + truck.address + "<br>" + truck.fooditems
+					    });
+
+					    marker.addListener('click', function() {
+					      infowindow.open(resultsMap, marker);
+					    });
+    				})
+
+    				resultsMap.fitBounds(bounds);
+    				showMessage("Found " + truckCount + " Trucks (marked in red) and " + pushCartCount + " Push Carts (marked in green).      Click on marker for more info.")
+    				
+    			} else {
+    				showMessage("We could not find any Food Trucks around your location ! Try different location.")
+    			}
+    			hideLoader()
     		},
     		error: function (result) {
-				alert(JSON.stringify(result))
+    			hideLoader()
+				showMessage("There seems to be a glich in the server. Try again.")
 			}
     	})
     
 	} else {
-		alert('Geocode was not successful for the following reason: ' + status);
+		showMessage('Geocode was not successful for the following reason: ' + status);
 	}
 }
