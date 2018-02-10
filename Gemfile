@@ -61,3 +61,6 @@ gem 'soda-ruby', :require => 'soda'
 
 # for method mocking in tests
 gem 'mocha'
+
+# For heroku deployment
+gem 'pg'
