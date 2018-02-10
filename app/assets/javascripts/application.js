@@ -116,7 +116,23 @@ function handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, resul
 		document.getElementById('address').value = results[0].formatted_address
     	document.getElementById('latitude').value = results[0].geometry.location.lat()
     	document.getElementById('longitude').value = results[0].geometry.location.lng()
-	    
+
+    	$.ajax({
+    		method: "GET",
+    		url: "/api/json/one/trucks",
+    		data: {
+    			latitude: results[0].geometry.location.lat(),
+    			longitude: results[0].geometry.location.lng(),
+    			address: results[0].formatted_address
+    		},
+    		success: function (result, status) {
+    			alert(JSON.stringify(result))
+    		},
+    		error: function (result) {
+				alert(JSON.stringify(result))
+			}
+    	})
+    
 	} else {
 		alert('Geocode was not successful for the following reason: ' + status);
 	}
