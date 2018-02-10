@@ -1,7 +1,7 @@
-<h1>Drag the blue marker on the map to locate nearby food trucks ! Click on markers for more info.</h1>
+<h1>Drag the blue marker on the map to locate nearby food trucks ! Click on markers for more info</h1>
 
 <%= form_tag "#", onsubmit: "return false;" do %>	
-	<%= text_field_tag "address", "", placeholder: "Type Address", autofocus: "autofocus", style: "width: 80%;" %>
+	<%= text_field_tag "address", "", required: true, placeholder: "Type Address", autofocus: "autofocus", style: "width: 80%;" %>
 	
 	<%= button_tag "Find Food Trucks", id: "submit-address-button" %>	
 <% end %>		
@@ -25,10 +25,10 @@
 <h2>Or enter your geo cordinates. Try (37.78 , -122.43)</h2> 
 <%= form_tag "#", onsubmit: "return false;" do %>
 	<%= label_tag "Latitude" %>
-	<%= text_field_tag "latitude", "37.78" %>
+	<%= text_field_tag "latitude", "37.78", required: true %>
 
 	<%= label_tag "Longitude" %>
-	<%= text_field_tag "longitude", "-122.43" %>
+	<%= text_field_tag "longitude", "-122.43", required: true %>
 		
 	<%= button_tag "Find Food Trucks", id: "submit-cordinates-button" %>	
 <% end %>

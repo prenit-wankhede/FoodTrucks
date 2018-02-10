@@ -105,22 +105,27 @@ function setMap(location) {
 }
 
 function geocodeAddress(geocoder, resultsMap, resultMarker, resultInfoWindow) {
-	showLoader()
 	var address = document.getElementById('address').value;
-	geocoder.geocode({'address': address}, function(results, status) {
-		handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
-	});
+    if(address) {
+        showLoader()
+        geocoder.geocode({'address': address}, function(results, status) {
+            handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
+        });
+    }
 }
 
 function geocodeCordinates(geocoder, resultsMap, resultMarker, resultInfoWindow) {
-	showLoader()
 	var latitude = parseFloat(document.getElementById('latitude').value);
 	var longitude = parseFloat(document.getElementById('longitude').value);
-	var location = {lat: latitude, lng: longitude}
 
-	geocoder.geocode({'location': location}, function(results, status) {
-		handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
-	});
+    if(latitude && longitude) {
+        showLoader()
+        var location = {lat: latitude, lng: longitude}
+        geocoder.geocode({'location': location}, function(results, status) {
+            handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
+        });    
+    }
+	
 }
 
 function handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status){
