@@ -44,8 +44,8 @@ function setMap(location) {
 		position["lat"] = location.coords.latitude
 		position["lng"] = location.coords.longitude
 	} else {
-		position["lat"] = location.coords.latitude
-		position["lng"] = location.coords.longitude
+		position["lat"] = 19.0760
+		position["lng"] = 72.8777
 	}
 
 	var map = new google.maps.Map(document.getElementById('google-map-div'), {
@@ -54,7 +54,70 @@ function setMap(location) {
 	});
 	var marker = new google.maps.Marker({
 	  position: position,
-	  map: map
+	  map: map,
+	  label: "You",
+	  draggable:true,
+	  icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
 	});
+
+	var infowindow = new google.maps.InfoWindow({
+      content: "Your location <br> " + position.lat + ", " + position.lng
+    });
+
+    marker.addListener('click', function() {
+      infowindow.open(map, marker);
+    });
+    
 	hideLoader()
+
+	var geocoder = new google.maps.Geocoder();
+
+    document.getElementById('submit-address-button').addEventListener('click', function() {
+      geocodeAddress(geocoder, map, marker, infowindow);
+    });
+
+    document.getElementById('submit-cordinates-button').addEventListener('click', function() {
+      geocodeCordinates(geocoder, map, marker, infowindow);
+    });
+
+    marker.addListener('dragend', function(event) {
+    	infowindow.setContent("Your location <br> " + event.latLng.lat() + ", " + event.latLng.lng())
+    	document.getElementById('latitude').value = event.latLng.lat()
+    	document.getElementById('longitude').value = event.latLng.lng()
+    	geocodeCordinates(geocoder, map, marker, infowindow);
+    });
+
+}
+
+function geocodeAddress(geocoder, resultsMap, resultMarker, resultInfoWindow) {
+	var address = document.getElementById('address').value;
+	geocoder.geocode({'address': address}, function(results, status) {
+		handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
+	});
+}
+
+function geocodeCordinates(geocoder, resultsMap, resultMarker, resultInfoWindow) {
+	var latitude = parseFloat(document.getElementById('latitude').value);
+	var longitude = parseFloat(document.getElementById('longitude').value);
+	var location = {lat: latitude, lng: longitude}
+
+	geocoder.geocode({'location': location}, function(results, status) {
+		handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status)
+	});
+}
+
+function handleGeoCodeResponse(resultInfoWindow, resultMarker, resultsMap, results, status){
+	if (status === 'OK') {
+		resultsMap.setCenter(results[0].geometry.location);
+		
+		resultMarker.setPosition(results[0].geometry.location)
+		resultInfoWindow.setContent(results[0].formatted_address)
+		
+		document.getElementById('address').value = results[0].formatted_address
+    	document.getElementById('latitude').value = results[0].geometry.location.lat()
+    	document.getElementById('longitude').value = results[0].geometry.location.lng()
+	    
+	} else {
+		alert('Geocode was not successful for the following reason: ' + status);
+	}
 }
